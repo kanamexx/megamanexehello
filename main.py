@@ -1,20 +1,21 @@
-from nltk.chat.util import Chat, reflections
-from nltk.stem import WordNetLemmatizer
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
-pairs = [
-    [
-        r"my name is (.*)",
-        ["Hello %1, How are you today ?",]
-    ],
-    # ... その他のペアを追加
-]
+# モデルのロード
+model_name = "t5-base"  # 例: T5モデル
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
 
-chat = Chat(pairs, reflections)
-
-print("Hi, how can I help you today?")
 while True:
-    user_input = input(">>> ")
-    if user_input == "quit":
+    # 入力文
+    input_text = input(">>> ")
+    if input_text == "quit":
         break
-    response = chat.respond(user_input)
-    print(response)
+
+    # 入力文をトークナイズ
+    input_ids = tokenizer.encode(input_text, return_tensors='pt')
+
+    # 応答生成
+    output = model.generate(input_ids)
+    output = tokenizer.decode(output[0], skip_special_tokens=True)
+
+    print(output)
